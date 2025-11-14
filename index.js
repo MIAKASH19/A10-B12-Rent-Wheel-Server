@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -36,9 +36,37 @@ async function run() {
 
 
     app.get("/cars", async (req, res)=>{
-        const cursor = carsCollection.find().limit(6)
+        const cursor = carsCollection.find()
         const result = await cursor.toArray()
         res.send(result)
+    })
+
+    app.get("/cars/:id", async(req, res)=>{
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)}
+      const result = await carsCollection.findOne(query)
+      res.send(result)
+    })
+
+    app.get("/featured-cars", async (req, res) => {
+      const cursor = carsCollection
+        .find()
+        .limit(6)
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/browse-cars", async (req, res) => {
+      const cursor = carsCollection
+        .find()
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/add-car", async(req, res)=>{
+      const newCar = req.body;
+      const result = await carsCollection.insertOne(newCar);
+      res.send(result);
     })
 
 
