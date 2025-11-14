@@ -36,6 +36,7 @@ async function run() {
 
     const carsCollection = database.collection("cars");
     const userCollection = database.collection("users");
+    const bookingCollection = database.collection("bookings");
 
     // User API
     app.post("/users", async (req, res) => {
@@ -57,9 +58,28 @@ async function run() {
       }
     });
 
+    //Booking Api
+    app.post("/bookings", async (req, res) => {
+      const newBooking = req.body;
+      const result = await bookingCollection.insertOne(newBooking);
+      res.send(result);
+    });
+
+    app.get("/bookings", async(req, res)=>{
+      const email = req.query.email
+      const query = email ? { "user_email": email } : {};
+
+      const cursor = bookingCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
     // Car API
     app.get("/cars", async (req, res) => {
-      const cursor = carsCollection.find();
+      const email = req.query.email;
+      const query = email ? { "provider.email": email } : {};
+
+      const cursor = carsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
