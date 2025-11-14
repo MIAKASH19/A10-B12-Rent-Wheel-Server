@@ -28,48 +28,70 @@ async function run() {
   try {
     await client.connect();
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
 
-    const database = client.db("rent-wheels-DB")
+    const database = client.db("rent-wheels-DB");
 
-    const carsCollection = database.collection("cars")
+    const carsCollection = database.collection("cars");
 
+    app.get("/cars", async (req, res) => {
+      const cursor = carsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
-    app.get("/cars", async (req, res)=>{
-        const cursor = carsCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
-    })
-
-    app.get("/cars/:id", async(req, res)=>{
-      const id = req.params.id
-      const query = {_id : new ObjectId(id)}
-      const result = await carsCollection.findOne(query)
-      res.send(result)
-    })
+    app.get("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carsCollection.findOne(query);
+      res.send(result);
+    });
 
     app.get("/featured-cars", async (req, res) => {
-      const cursor = carsCollection
-        .find()
-        .limit(6)
+      const cursor = carsCollection.find().limit(6);
       const result = await cursor.toArray();
       res.send(result);
     });
 
     app.get("/browse-cars", async (req, res) => {
-      const cursor = carsCollection
-        .find()
+      const cursor = carsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    app.post("/add-car", async(req, res)=>{
+    app.post("/add-car", async (req, res) => {
       const newCar = req.body;
       const result = await carsCollection.insertOne(newCar);
       res.send(result);
-    })
+    });
 
+    app.patch("/cars/book/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
 
+      const update = {
+        $set: {
+          status: "unavailable",
+        },
+      };
+
+      const result = await carsCollection.updateOne(query, update);
+      res.send(result);
+    });
+
+    app.patch("/cars/cancel/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $set: { status: "available" },
+      };
+
+      const result = await carsCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
   } finally {
   }
 }
