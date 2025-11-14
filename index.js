@@ -35,7 +35,29 @@ async function run() {
     const database = client.db("rent-wheels-DB");
 
     const carsCollection = database.collection("cars");
+    const userCollection = database.collection("users");
 
+    // User API
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      const email = req.body.email;
+      const query = { email: email };
+
+      const existingUser = await userCollection.findOne(query);
+
+      if (existingUser) {
+        res.json({
+          success: true,
+          message: "User already exists. Do not need to insert again",
+          user: existingUser,
+        });
+      } else {
+        const result = await userCollection.insertOne(newUser);
+        res.send(result);
+      }
+    });
+
+    // Car API
     app.get("/cars", async (req, res) => {
       const cursor = carsCollection.find();
       const result = await cursor.toArray();
