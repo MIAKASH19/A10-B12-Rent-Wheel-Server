@@ -59,12 +59,6 @@ async function run() {
     });
 
     //Booking Api
-    app.post("/bookings", async (req, res) => {
-      const newBooking = req.body;
-      const result = await bookingCollection.insertOne(newBooking);
-      res.send(result);
-    });
-
     app.get("/bookings", async(req, res)=>{
       const email = req.query.email
       const query = email ? { "user_email": email } : {};
@@ -73,6 +67,21 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     })
+
+    app.post("/bookings", async (req, res) => {
+      const newBooking = req.body;
+      const result = await bookingCollection.insertOne(newBooking);
+      res.send(result);
+    });
+
+    app.delete("/bookings/:id", async(req, res)=>{
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+
+      const result = await bookingCollection.deleteOne(query)
+      res.send(result)
+    })
+
 
     // Car API
     app.get("/cars", async (req, res) => {
