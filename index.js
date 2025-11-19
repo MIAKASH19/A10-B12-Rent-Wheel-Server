@@ -32,10 +32,16 @@ async function run() {
     const carsCollection = database.collection("cars");
     const userCollection = database.collection("users");
     const bookingCollection = database.collection("bookings");
+    const testimonialCollection = database.collection("testimonials");
 
-    // --------------------------
+    // TESTIMONiAL API
+    app.get("/testimonials", async (req, res) => {
+      const cursor = testimonialCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     // USER API
-    // --------------------------
     app.post("/users", async (req, res) => {
       const newUser = req.body;
       const email = req.body.email;
@@ -55,9 +61,7 @@ async function run() {
       }
     });
 
-    // --------------------------
     // BOOKING API
-    // --------------------------
     app.get("/bookings", async (req, res) => {
       const email = req.query.email;
       const query = email ? { user_email: email } : {};
@@ -92,11 +96,7 @@ async function run() {
       res.send(result);
     });
 
-    // --------------------------
     // CAR API
-    // --------------------------
-
-    // GET all cars OR provider-specific
     app.get("/cars", async (req, res) => {
       const email = req.query.email;
       const query = email ? { "provider.email": email } : {};
@@ -106,7 +106,6 @@ async function run() {
       res.send(result);
     });
 
-    // GET single car
     app.get("/cars/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -114,32 +113,24 @@ async function run() {
       res.send(result);
     });
 
-    // FEATURED
     app.get("/featured-cars", async (req, res) => {
       const cursor = carsCollection.find().limit(6).sort({ added_time: -1 });
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    // BROWSE CARS
     app.get("/browse-cars", async (req, res) => {
       const cursor = carsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    // ADD CAR
     app.post("/add-car", async (req, res) => {
       const newCar = req.body;
       const result = await carsCollection.insertOne(newCar);
       res.send(result);
     });
 
-    // --------------------------
-    // ⭐ NEW ROUTES FOR MY LISTINGS
-    // --------------------------
-
-    // DELETE CAR (for My Listings)
     app.delete("/cars/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -148,7 +139,6 @@ async function run() {
       res.send(result);
     });
 
-    // UPDATE CAR (for My Listings)
     app.patch("/cars/:id", async (req, res) => {
       const id = req.params.id;
       const updatedData = req.body;
@@ -160,7 +150,6 @@ async function run() {
       res.send(result);
     });
 
-    // Update car status: booked
     app.patch("/cars/book/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -173,7 +162,6 @@ async function run() {
       res.send(result);
     });
 
-    // Update car status: cancel
     app.patch("/cars/cancel/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -185,16 +173,15 @@ async function run() {
       const result = await carsCollection.updateOne(query, updateDoc);
       res.send(result);
     });
-  } finally {}
+  } finally {
+  }
 }
 run().catch(console.dir);
 
-// Root route
 app.get("/", (req, res) => {
   res.send("Rental Server is Running");
 });
 
-// Listen
 app.listen(port, () => {
   console.log("Server is running on port", port);
 });
