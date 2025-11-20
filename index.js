@@ -1,4 +1,5 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -10,7 +11,7 @@ app.use(express.json());
 
 // URI
 const uri =
-  "mongodb+srv://rent-wheelsDBuser:r6EI5vdrU8zUoubW@cluster0.9sqbqr2.mongodb.net/?appName=Cluster0";
+  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.9sqbqr2.mongodb.net/?appName=Cluster0`;
 
 // Connect To Database
 const client = new MongoClient(uri, {
